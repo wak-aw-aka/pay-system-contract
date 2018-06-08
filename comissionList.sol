@@ -74,7 +74,6 @@ contract Ownable {
     OwnershipTransferred(owner, newOwner);
     owner = newOwner;
   }
-
 }
 
 contract Claimable is Ownable {
