@@ -422,25 +422,25 @@ contract ComissionList is Claimable {
   // рассчитать комиссию со снятия для платёжной системы и суммы
   function calcWidthraw(string _paySystem, uint256 _value) public view returns(uint256) {
     uint256 _totalComission;
-    _totalComission = widthrawPaySystemInfo[_paySystem].stat + (_value / 100 ) * widthrawPaySystemInfo[_paySystem].perc;
+    _totalComission = ( widthrawPaySystemInfo[_paySystem].stat * 100 + (_value / 100 ) * widthrawPaySystemInfo[_paySystem].perc ) / 100;
 
     return _totalComission;
   }
 
   // рассчитать комиссию с пополнения для платёжной системы и суммы
   function calcRefill(string _paySystem, uint256 _value) public view returns(uint256) {
-    uint256 _totalComission;
-    _totalComission = refillPaySystemInfo[_paySystem].stat + (_value / 100 ) * refillPaySystemInfo[_paySystem].perc;
+    uint256 _totalSum;
+    _totalSum = (((_value - refillPaySystemInfo[_paySystem].stat) * 100) * 100) / (refillPaySystemInfo[_paySystem].perc + (100 * 100));
 
-    return _totalComission;
+    return _value.sub(_totalSum);
   }
 
   // рассчитать комиссию с перевода для платёжной системы и суммы
   function calcTransfer(uint256 _value) public view returns(uint256) {
-    uint256 _totalComission;
-    _totalComission = transferInfo.stat + (_value / 100 ) * transferInfo.perc;
+    uint256 _totalSum;
+    _totalSum = (((_value - transferInfo.stat) * 100) * 100) / (transferInfo.perc + (100 * 100));
 
-    return _totalComission;
+    return _value.sub(_totalSum);
   }
 }
 
@@ -466,13 +466,13 @@ contract AddressList is Claimable {
 }
 
 contract EvaCurrency is PausableToken, BurnableToken {
-  string public name = "EvaUSD";
-  string public symbol = "EUSD";
+  string public name = "EvaEUR";
+  string public symbol = "EEUR";
 
   ComissionList public comissionList;
   AddressList public moderList;
 
-  uint8 public constant decimals = 3;
+  uint8 public constant decimals = 2;
 
   mapping(address => uint) lastUsedNonce;
 
@@ -491,7 +491,7 @@ contract EvaCurrency is PausableToken, BurnableToken {
       symbol = _symbol;
   }
 
-  function setComissionList(ComissionList _comissionList, AddressList _moderList) onlyOwner public {
+  function setLists(ComissionList _comissionList, AddressList _moderList) onlyOwner public {
     comissionList = _comissionList;
     moderList = _moderList;
   }
